@@ -27,14 +27,14 @@ export async function POST(req: Request) {
     const prompt = `
         Create a fun and modern Korean short story for a ${currentLevel} learner about: "${topic}".
         
-        Follow this JSON structure EXACTLY:
+        Return ONLY valid JSON with this structure:
         {
           "title": "...",
           "korean": "...",
           "theme": { "primary": "...", "secondary": "...", "accent": "...", "background": "...", "text": "...", "icon": "..." },
           "translations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." },
           "vocab": [ { "word": "...", "match": "...", "meanings": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } } ],
-          "grammar": [ { "pattern": "...", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [ { "ko": "...", "en": "..." } ] } ]
+          "grammar": [ { "pattern": "...", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [ { "ko": "...", "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } ] } ]
         }
     `;
 

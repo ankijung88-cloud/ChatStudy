@@ -79,8 +79,22 @@ const INITIAL_DATA: any = {
                         cn: "正式礼貌的句尾（是...）。"
                     },
                     examples: [
-                        { ko: "저는 학생입니다.", en: "I am a student." },
-                        { ko: "날씨가 좋습니다.", en: "The weather is good." }
+                        {
+                            ko: "저는 학생입니다.",
+                            en: "I am a student.",
+                            th: "ฉันเป็นนักเรียน",
+                            jp: "私は学生です。",
+                            de: "Ich bin ein Student.",
+                            cn: "我是学生。"
+                        },
+                        {
+                            ko: "날씨가 좋습니다.",
+                            en: "The weather is good.",
+                            th: "อากาศดี",
+                            jp: "天気がいいです。",
+                            de: "Das Wetter ist gut.",
+                            cn: "天气很好。"
+                        }
                     ]
                 },
                 {
@@ -90,11 +104,25 @@ const INITIAL_DATA: any = {
                         th: "คิดว่า...เป็น... (การอ้างถึง)",
                         jp: "～だと思う（引用）。",
                         de: "Denken, dass [Nomen] ... ist.",
-                        cn: "觉得...是...（引用）。"
+                        cn: "觉得...은...（引用）。"
                     },
                     examples: [
-                        { ko: "그것은 사랑이라고 생각해요.", en: "I think that is love." },
-                        { ko: "이것은 좋은 기회라고 생각합니다.", en: "I think this is a good opportunity." }
+                        {
+                            ko: "그것은 사랑이라고 생각해요.",
+                            en: "I think that is love.",
+                            th: "ฉันคิดว่านั่นคือความรัก",
+                            jp: "それは愛だと思います。",
+                            de: "Ich denke, das ist Liebe.",
+                            cn: "我觉得那是爱。"
+                        },
+                        {
+                            ko: "이것은 좋은 기회라고 생각합니다.",
+                            en: "I think this is a good opportunity.",
+                            th: "ฉันคิดว่านี่เป็นโอกาสที่ดี",
+                            jp: "これはいい機会だと思います。",
+                            de: "Ich denke, das ist eine gute Gelegenheit.",
+                            cn: "我觉得这是一个好机会。"
+                        }
                     ]
                 }
             ]
