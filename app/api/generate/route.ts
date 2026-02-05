@@ -1,0 +1,79 @@
+import { NextResponse } from 'next/server';
+
+export async function POST(req: Request) {
+    try {
+        const { topic, currentLevel } = await req.json();
+        const apiKey = process.env.GEMINI_API_KEY;
+
+        if (!apiKey) {
+            return NextResponse.json({ error: 'API Key not configured' }, { status: 500 });
+        }
+
+        const prompt = `
+        Create a fun and modern Korean short story for a ${currentLevel} learner about: "${topic}".
+        
+        Return ONLY valid JSON with this structure:
+        {
+          "title": "Korean Title",
+          "korean": "Korean story text (5-8 sentences)",
+          "theme": {
+            "primary": "Hex Color (e.g. #F59E0B)",
+            "secondary": "Hex Color (light version)",
+            "accent": "Hex Color (dark version)",
+            "background": "Hex Color (very light)",
+            "text": "Hex Color (dark contrast)",
+            "icon": "String (One of: Cat, Snowflake, Ghost, Bot, BookOpen, Utensils, Zap, Moon, Sun, Monitor)"
+          },
+          "translations": {
+            "en": "English full translation",
+            "th": "Thai full translation",
+            "jp": "Japanese full translation",
+            "de": "German full translation",
+            "cn": "Chinese full translation"
+          },
+          "vocab": [
+            { "word": "Korean Word", "match": "Conjugated form in text if needed", "meanings": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } }
+          ],
+          "grammar": [
+            { "pattern": "Grammar Pattern", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [{ "ko": "Example sentence", "en": "Eng trans" }] }
+          ]
+        }
+      `;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+            throw new Error("No content generated");
+        }
+
+        let generatedText = data.candidates[0].content.parts[0].text;
+        generatedText = generatedText.trim();
+
+        // Cleanup markdown if present
+        if (generatedText.startsWith('```')) {
+            generatedText = generatedText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '');
+        }
+
+        const jsonStartIndex = generatedText.indexOf('{');
+        const jsonEndIndex = generatedText.lastIndexOf('}');
+        if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+            generatedText = generatedText.substring(jsonStartIndex, jsonEndIndex + 1);
+        }
+
+        return NextResponse.json(JSON.parse(generatedText));
+    } catch (error: any) {
+        console.error("Generation failed:", error);
+        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    }
+}
