@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     const prompt = `
         Create a fun and modern Korean short story for a ${currentLevel} learner about: "${topic}".
-        The Korean story text must be within 300 characters including spaces.
+        The Korean story text must be within 600 characters including spaces.
         
         Return ONLY valid JSON with this structure:
     {
