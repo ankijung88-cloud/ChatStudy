@@ -655,7 +655,7 @@ export default function App() {
                             <ThemeIcon className="w-6 h-6" />
                         </div>
                         <h1 className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
-                            K-StoryLab
+                            AI-KOREA STORY
                         </h1>
                         <span className="text-[10px] text-slate-300 font-mono mt-1 hidden xs:block">v1.1.2</span>
                     </div>
