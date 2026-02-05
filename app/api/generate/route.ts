@@ -43,9 +43,8 @@ export async function POST(req: Request) {
 
     console.log(`[ChatStudy API] Generating story for topic: "${topic}", level: "${currentLevel}"`);
 
-    // Reverting to v1beta because v1 has inconsistent support for responseMimeType in some regions
-    // Using gemini-1.5-flash-latest to ensure the most up-to-date and available model
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+    // Upgrading to Gemini 2.0 Flash for superior performance and speed
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
