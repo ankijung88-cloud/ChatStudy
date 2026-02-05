@@ -26,19 +26,20 @@ export async function POST(req: Request) {
 
     const prompt = `
         Create a fun and modern Korean short story for a ${currentLevel} learner about: "${topic}".
+        The Korean story text must be within 300 characters including spaces.
         
         Return ONLY valid JSON with this structure:
-        {
-          "title": "...",
-          "korean": "...",
+    {
+      "title": "...",
+        "korean": "...",
           "theme": { "primary": "...", "secondary": "...", "accent": "...", "background": "...", "text": "...", "icon": "..." },
-          "translations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." },
-          "vocab": [ { "word": "...", "match": "...", "meanings": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } } ],
-          "grammar": [ { "pattern": "...", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [ { "ko": "...", "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } ] } ]
-        }
+      "translations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." },
+      "vocab": [{ "word": "...", "match": "...", "meanings": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } }],
+        "grammar": [{ "pattern": "...", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [{ "ko": "...", "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }] }]
+    }
     `;
 
-    console.log(`[AI-KOREA STORY API] Generating story for topic: "${topic}", level: "${currentLevel}"`);
+    console.log(`[AI - KOREA STORY API] Generating story for topic: "${topic}", level: "${currentLevel}"`);
 
     // Upgrading to Gemini 2.0 Flash for superior performance and speed
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
