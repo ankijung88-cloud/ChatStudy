@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      console.error("[ChatStudy API] GEMINI_API_KEY is missing");
+      console.error("[K-StoryLab API] GEMINI_API_KEY is missing");
       return NextResponse.json({ error: 'Vercel에 API Key가 설정되지 않았습니다. Settings > Environment Variables를 확인해주세요.' }, { status: 500 });
     }
 
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         }
     `;
 
-    console.log(`[ChatStudy API] Generating story for topic: "${topic}", level: "${currentLevel}"`);
+    console.log(`[K-StoryLab API] Generating story for topic: "${topic}", level: "${currentLevel}"`);
 
     // Upgrading to Gemini 2.0 Flash for superior performance and speed
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[ChatStudy API] Gemini Error:", JSON.stringify(data));
+      console.error("[K-StoryLab API] Gemini Error:", JSON.stringify(data));
       return NextResponse.json({
         error: `Gemini API 에러: ${data.error?.message || response.statusText}`,
         code: data.error?.status
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     }
 
     if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      console.error("[ChatStudy API] Empty response from Gemini:", JSON.stringify(data));
+      console.error("[K-StoryLab API] Empty response from Gemini:", JSON.stringify(data));
       return NextResponse.json({
         error: "인공지능이 응답을 생성하지 못했습니다. (Empty Response)",
       }, { status: 500 });
