@@ -468,9 +468,12 @@ export default function App() {
     const handlePrevStory = () => {
         if (currentStoryIndex > 0) {
             setCurrentStoryIndex(prev => prev - 1);
-            setShowTranslation(false);
-            setActiveTab('story');
+        } else {
+            // Loop to the last story
+            setCurrentStoryIndex(stories.length - 1);
         }
+        setShowTranslation(false);
+        setActiveTab('story');
     };
 
     const handleLevelChange = (level: string) => {
@@ -862,8 +865,7 @@ export default function App() {
                     <div className="max-w-3xl mx-auto flex justify-between items-center gap-4">
                         <button
                             onClick={handlePrevStory}
-                            disabled={currentStoryIndex === 0}
-                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-bold border transition-all ${currentStoryIndex === 0 ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:shadow-sm'}`}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-bold bg-white text-slate-600 border border-slate-200 hover:border-slate-400 hover:shadow-sm transition-all active:scale-95"
                         >
                             <ChevronLeft className="w-5 h-5" />
                             PREV
