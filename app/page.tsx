@@ -450,6 +450,18 @@ export default function App() {
             setCurrentStoryIndex(prev => prev + 1);
             setShowTranslation(false);
             setActiveTab('story');
+        } else {
+            // Auto-generate a new story with a random fun topic
+            const autoTopics = [
+                "A talking cat in Seoul", "First snow in a Hanok village", "A robot trying spicy kimchi",
+                "A student studying at a 24h cafe", "A rainy day in Myeongdong", "Making new friends at a flea market",
+                "A time traveler visiting Gyeongbokgung", "Learning to play the Gayageum", "A busy morning in Gangnam",
+                "Watching a movie at the Han River", "Robot's first experience at a Korean Sauna",
+                "A ghost searching for the best Tteokbokki", "An astronaut visiting Jeju Island",
+                "A magic umbrella that translates Korean"
+            ];
+            const randomTopic = autoTopics[Math.floor(Math.random() * autoTopics.length)];
+            generateStory(randomTopic);
         }
     };
 
@@ -863,16 +875,30 @@ export default function App() {
 
                         <button
                             onClick={handleNextStory}
-                            disabled={currentStoryIndex === stories.length - 1}
+                            disabled={isGenerating}
                             style={{
-                                backgroundColor: currentStoryIndex === stories.length - 1 ? '#f8fafc' : theme.primary,
-                                color: currentStoryIndex === stories.length - 1 ? '#cbd5e1' : 'white',
-                                boxShadow: currentStoryIndex === stories.length - 1 ? 'none' : `0 8px 20px -4px ${theme.primary}50`
+                                backgroundColor: isGenerating ? '#f8fafc' : theme.primary,
+                                color: isGenerating ? '#cbd5e1' : 'white',
+                                boxShadow: isGenerating ? 'none' : `0 8px 20px -4px ${theme.primary}50`
                             }}
                             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl font-black transition-all hover:scale-105 active:scale-95 disabled:scale-100"
                         >
-                            NEXT STORY
-                            <ChevronRight className="w-5 h-5" />
+                            {isGenerating ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    GENERATING...
+                                </>
+                            ) : currentStoryIndex === stories.length - 1 ? (
+                                <>
+                                    AI NEXT STORY
+                                    <Sparkles className="w-5 h-5" />
+                                </>
+                            ) : (
+                                <>
+                                    NEXT STORY
+                                    <ChevronRight className="w-5 h-5" />
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
