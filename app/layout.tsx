@@ -14,6 +14,9 @@ export const metadata: Metadata = {
         statusBarStyle: "default",
         title: "AI-KOREA STORY",
     },
+    icons: {
+        apple: "/icon-192x192.png",
+    },
 };
 
 export default function RootLayout({
