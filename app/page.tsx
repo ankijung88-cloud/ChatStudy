@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
     BookOpen, Globe, Languages, List, MessageCircle, ChevronRight, ChevronLeft,
     Volume2, CheckCircle2, Star, X, Sparkles, Cat, Snowflake, Ghost, Bot,
-    Utensils, Zap, Moon, Sun, Monitor, Loader2, Wand2
+    Utensils, Zap, Moon, Sun, Monitor, Loader2, Wand2, Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -426,6 +426,7 @@ export default function App() {
     // AI Generator State
     const [showGenerator, setShowGenerator] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const stories = storyData[currentLevel];
     const currentStory = stories[currentStoryIndex];
@@ -481,6 +482,7 @@ export default function App() {
         setCurrentStoryIndex(0);
         setShowTranslation(false);
         setActiveTab('story');
+        setIsMenuOpen(false);
     };
 
     const generateStory = async (topic: string) => {
@@ -592,7 +594,7 @@ export default function App() {
             className="min-h-screen font-sans transition-colors duration-500"
             style={{ backgroundColor: theme.background, color: theme.text }}
         >
-            <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-10">
+            <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-50">
                 <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div
@@ -605,32 +607,98 @@ export default function App() {
                             ChatStudy
                         </h1>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="hidden sm:flex gap-1 text-sm font-medium">
-                            {['beginner', 'intermediate', 'advanced'].map((level) => (
-                                <button
-                                    key={level}
-                                    onClick={() => handleLevelChange(level)}
-                                    style={{
-                                        backgroundColor: currentLevel === level ? theme.secondary : 'transparent',
-                                        color: currentLevel === level ? theme.primary : '#94a3b8'
-                                    }}
-                                    className="px-3 py-1.5 rounded-full transition-all duration-300 capitalize hover:opacity-80"
-                                >
-                                    {level}
-                                </button>
-                            ))}
+
+                    <div className="flex items-center gap-2">
+                        {/* Desktop Navigation */}
+                        <div className="hidden sm:flex items-center gap-3">
+                            <div className="flex gap-1 text-sm font-medium">
+                                {['beginner', 'intermediate', 'advanced'].map((level) => (
+                                    <button
+                                        key={level}
+                                        onClick={() => handleLevelChange(level)}
+                                        style={{
+                                            backgroundColor: currentLevel === level ? theme.secondary : 'transparent',
+                                            color: currentLevel === level ? theme.primary : '#94a3b8'
+                                        }}
+                                        className="px-3 py-1.5 rounded-full transition-all duration-300 capitalize hover:opacity-80"
+                                    >
+                                        {level}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => setShowGenerator(true)}
+                                style={{ backgroundColor: theme.primary }}
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all w-fit"
+                            >
+                                <Sparkles className="w-4 h-4" />
+                                <span>Create</span>
+                            </button>
                         </div>
+
+                        {/* Mobile Hamburger Button */}
                         <button
-                            onClick={() => setShowGenerator(true)}
-                            style={{ backgroundColor: theme.primary }}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all w-fit"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="p-2 sm:hidden text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
                         >
-                            <Sparkles className="w-4 h-4" />
-                            <span className="hidden xs:inline">Create</span>
+                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
                 </div>
+
+                {/* Mobile Menu Overlay */}
+                <AnimatePresence>
+                    {isMenuOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsMenuOpen(false)}
+                                className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 sm:hidden"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className="absolute top-16 left-0 right-0 bg-white border-b border-slate-200 p-4 shadow-xl z-50 sm:hidden"
+                            >
+                                <div className="flex flex-col gap-4">
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">
+                                        Skill Level
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {['beginner', 'intermediate', 'advanced'].map((level) => (
+                                            <button
+                                                key={level}
+                                                onClick={() => handleLevelChange(level)}
+                                                style={{
+                                                    backgroundColor: currentLevel === level ? theme.secondary : '#f8fafc',
+                                                    color: currentLevel === level ? theme.primary : '#64748b',
+                                                    border: `1px solid ${currentLevel === level ? theme.primary + '20' : '#e2e8f0'}`
+                                                }}
+                                                className="px-3 py-3 rounded-xl text-sm font-bold capitalize transition-all active:scale-95"
+                                            >
+                                                {level}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setShowGenerator(true);
+                                            setIsMenuOpen(false);
+                                        }}
+                                        style={{ backgroundColor: theme.primary }}
+                                        className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all"
+                                    >
+                                        <Sparkles className="w-5 h-5" />
+                                        Create New Story
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
             </header>
 
             <main className="max-w-3xl mx-auto px-4 py-6 pb-32">
