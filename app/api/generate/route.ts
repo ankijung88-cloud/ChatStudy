@@ -10,36 +10,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Vercel에 API Key가 설정되지 않았습니다. Settings > Environment Variables를 확인해주세요.' }, { status: 500 });
     }
 
+    const systemInstruction = `
+        You are a helpful Korean language teacher. 
+        Your absolute priority is providing text with PERFECT Korean spacing (표준 띄어쓰기).
+        
+        spacing rules to enforce:
+        1. Always put a space between words (e.g., '밥을 먹어요' NOT '밥을먹어요').
+        2. Always put a space after a sentence-ending punctuation (., ?, !).
+        3. Never return a long string of Korean text without any spaces.
+        4. Failure to provide correct spacing makes the content useless for learners.
+        
+        Correct Example: "저는 학교에 갑니다. 친구를 만나요."
+        Incorrect Example: "저는학교에갑니다.친구를만나요."
+    `;
+
     const prompt = `
         Create a fun and modern Korean short story for a ${currentLevel} learner about: "${topic}".
         
-        Return ONLY valid JSON with this structure:
+        Follow this JSON structure EXACTLY:
         {
-          "title": "Korean Title",
-          "korean": "Korean story text (5-8 sentences)",
-          "theme": {
-            "primary": "Hex Color (e.g. #F59E0B)",
-            "secondary": "Hex Color (light version)",
-            "accent": "Hex Color (dark version)",
-            "background": "Hex Color (very light)",
-            "text": "Hex Color (dark contrast)",
-            "icon": "String (One of: Cat, Snowflake, Ghost, Bot, BookOpen, Utensils, Zap, Moon, Sun, Monitor)"
-          },
-          "translations": {
-            "en": "English full translation",
-            "th": "Thai full translation",
-            "jp": "Japanese full translation",
-            "de": "German full translation",
-            "cn": "Chinese full translation"
-          },
-          "vocab": [
-            { "word": "Korean Word", "match": "Conjugated form in text if needed", "meanings": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } }
-          ],
-          "grammar": [
-            { "pattern": "Grammar Pattern", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [{ "ko": "Example sentence", "en": "Eng trans" }] }
-          ]
+          "title": "...",
+          "korean": "...",
+          "theme": { "primary": "...", "secondary": "...", "accent": "...", "background": "...", "text": "...", "icon": "..." },
+          "translations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." },
+          "vocab": [ { "word": "...", "match": "...", "meanings": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." } } ],
+          "grammar": [ { "pattern": "...", "explanations": { "en": "...", "th": "...", "jp": "...", "de": "...", "cn": "..." }, "examples": [ { "ko": "...", "en": "..." } ] } ]
         }
-      `;
+    `;
 
     console.log(`[ChatStudy API] Generating story for topic: "${topic}", level: "${currentLevel}"`);
 
@@ -48,10 +45,11 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemInstruction }] },
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: "application/json",
-          temperature: 0.8,
+          temperature: 0.2, // Very low temperature for maximum rule adherence
         }
       })
     });
@@ -70,13 +68,12 @@ export async function POST(req: Request) {
       console.error("[ChatStudy API] Empty response from Gemini:", JSON.stringify(data));
       return NextResponse.json({
         error: "인공지능이 응답을 생성하지 못했습니다. (Empty Response)",
-        reason: data.candidates?.[0]?.finishReason || "Unknown"
       }, { status: 500 });
     }
 
     let generatedText = data.candidates[0].content.parts[0].text.trim();
 
-    // Robust JSON extraction
+    // Robust JSON extraction and Post-processing
     try {
       // Remove markdown highlights if present
       const cleanJson = generatedText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '').trim();
@@ -84,11 +81,33 @@ export async function POST(req: Request) {
       const jsonEndIndex = cleanJson.lastIndexOf('}');
 
       if (jsonStartIndex === -1 || jsonEndIndex === -1) {
-        throw new Error("Invalid JSON structure returned");
+        throw new Error("Invalid JSON");
       }
 
       const finalJson = cleanJson.substring(jsonStartIndex, jsonEndIndex + 1);
-      return NextResponse.json(JSON.parse(finalJson));
+      const parsedData = JSON.parse(finalJson);
+
+      // Post-processing: Ensure spacing after punctuation even if AI forgets
+      const ensureSpacing = (text: string) => {
+        if (!text) return text;
+        return text
+          .replace(/([.?!])([^\s"\]}])/g, '$1 $2') // Add space after .?! if missing
+          .replace(/([.?!])\s*([.?!])/g, '$1$2'); // Don't add space between repeated punctuation
+      };
+
+      if (parsedData.korean) parsedData.korean = ensureSpacing(parsedData.korean);
+      if (parsedData.title) parsedData.title = ensureSpacing(parsedData.title);
+      if (parsedData.grammar) {
+        parsedData.grammar = parsedData.grammar.map((g: any) => ({
+          ...g,
+          examples: g.examples?.map((ex: any) => ({
+            ...ex,
+            ko: ensureSpacing(ex.ko)
+          }))
+        }));
+      }
+
+      return NextResponse.json(parsedData);
     } catch (parseError: any) {
       console.error("JSON Parse Error:", parseError, "Original Text:", generatedText);
       return NextResponse.json({

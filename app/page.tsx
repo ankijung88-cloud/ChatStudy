@@ -575,18 +575,26 @@ export default function App() {
     };
 
     const renderTextWithHighlight = (text: string, id: string) => {
-        const words = text.split(' ');
+        // Split by whitespace but KEEPS the whitespace in the array
+        const parts = text.split(/(\s+)/);
         let charAccumulator = 0;
 
-        return words.map((word, index) => {
-            const startIndex = charAccumulator;
-            const endIndex = charAccumulator + word.length;
+        return parts.map((part, index) => {
+            if (!part) return null;
 
-            const isActive = speakingId === id &&
+            const isWhitespace = /^\s+$/.test(part);
+            const startIndex = charAccumulator;
+            const endIndex = charAccumulator + part.length;
+
+            const isActive = !isWhitespace && speakingId === id &&
                 currentCharIndex >= startIndex &&
                 currentCharIndex < endIndex + 1;
 
-            charAccumulator += word.length + 1;
+            charAccumulator += part.length;
+
+            if (isWhitespace) {
+                return <span key={index}>{part}</span>;
+            }
 
             return (
                 <span
@@ -596,9 +604,9 @@ export default function App() {
                         color: isActive ? theme.primary : 'inherit',
                         fontWeight: isActive ? 'bold' : 'normal'
                     }}
-                    className="transition-all duration-200 rounded px-0.5 -mx-0.5 inline-block"
+                    className="transition-all duration-200 rounded px-0.5 inline-block"
                 >
-                    {word}{' '}
+                    {part}
                 </span>
             );
         });
