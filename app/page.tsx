@@ -494,22 +494,37 @@ export default function App() {
                 body: JSON.stringify({ topic, currentLevel })
             });
 
-            if (!response.ok) throw new Error("Failed to generate");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}`);
+            }
+
             const newStory = await response.json();
             newStory.id = Date.now();
 
-            setStoryData((prev: any) => ({
-                ...prev,
-                [currentLevel]: [...prev[currentLevel], newStory]
-            }));
+            setStoryData((prev: any) => {
+                const updatedLevelStories = [...prev[currentLevel], newStory];
+                // Set the index to the newly added story
+                setCurrentStoryIndex(updatedLevelStories.length - 1);
+                return {
+                    ...prev,
+                    [currentLevel]: updatedLevelStories
+                };
+            });
 
-            setCurrentStoryIndex(storyData[currentLevel].length);
             setShowGenerator(false);
             setShowTranslation(false);
             setActiveTab('story');
-        } catch (error) {
-            console.error("Generation failed:", error);
-            alert("Failed to create magic story. Please try again!");
+        } catch (error: any) {
+            console.error("Story generation failed:", error);
+
+            let message = "스토리 생성에 실패했습니다.";
+            if (error.message.includes("API Key")) {
+                message += "\n\nVercel 설정에서 'GEMINI_API_KEY' 환경 변수가 설정되어 있는지 확인해주세요.";
+            } else {
+                message += `\n오류: ${error.message}`;
+            }
+            alert(message);
         } finally {
             setIsGenerating(false);
         }
